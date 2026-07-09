@@ -1,20 +1,21 @@
-package com.uni.auth;
+package com.uni.innovationConnect.auth;
+
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.uni.auth.dto.LoginRequest;
-import com.uni.auth.dto.RegisterRequest;
+import com.uni.innovationConnect.auth.dto.LoginRequest;
+import com.uni.innovationConnect.auth.dto.RegisterRequest;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
 
     // Register
     @PostMapping("/register")

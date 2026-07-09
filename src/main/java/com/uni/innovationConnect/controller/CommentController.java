@@ -29,10 +29,13 @@ public class CommentController {
         return ResponseEntity.ok(comment);
     }
 
-    // @GetMapping("/{id}")
-    // public ResponseEntity<CommentDTO> getCommentById(@PathVariable Long id) {
-    //     return ResponseEntity.ok(commentService.getCommentById(id));
-    // }
+    // Since comments are always displayed under an idea,
+    // it's useful to add an endpoint to retrieve comments for
+    // a specific idea.
+    @GetMapping("/idea/{ideaId}")
+    public ResponseEntity<List<CommentDTO>> getCommentsByIdea(@PathVariable Long ideaId) {
+        return ResponseEntity.ok(commentService.getCommentsByIdea(ideaId));
+    }
 
     @PostMapping
     public ResponseEntity<CommentDTO> createComment(@RequestBody CommentDTO dto) {

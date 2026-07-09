@@ -14,6 +14,7 @@ public class Feedback extends AuditModel<String>{
 
     private String comment;
 
+    // fk
     @ManyToOne
     @JoinColumn(name = "idea_id")
     private Idea idea;

@@ -1,27 +1,25 @@
-package com.uni.auth;
+package com.uni.innovationConnect.auth;
+
 
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.uni.auth.dto.LoginRequest;
-import com.uni.auth.dto.RegisterRequest;
+import com.uni.innovationConnect.auth.dto.LoginRequest;
+import com.uni.innovationConnect.auth.dto.RegisterRequest;
 import com.uni.innovationConnect.model.User;
 import com.uni.innovationConnect.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
-
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     // Register
     public String register(RegisterRequest request) {

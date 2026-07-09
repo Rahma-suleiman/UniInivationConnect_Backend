@@ -15,43 +15,49 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v2/innovationConnect/vote")
 @RequiredArgsConstructor
 public class VoteController {
-    private final VoteService voteService;
+        private final VoteService voteService;
 
-     @GetMapping
-    public ResponseEntity<List<VoteDTO>> getAllVotes() {
-        List<VoteDTO> votes = voteService.getAllVotes();
-        return new ResponseEntity<>(votes, HttpStatus.OK);
-    }
+        @GetMapping
+        public ResponseEntity<List<VoteDTO>> getAllVotes() {
+                List<VoteDTO> votes = voteService.getAllVotes();
+                return new ResponseEntity<>(votes, HttpStatus.OK);
+        }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<VoteDTO> getVoteById(@PathVariable Long id) {
-        VoteDTO vote = voteService.getVoteById(id);
-        return ResponseEntity.ok(vote);
-    }
+        @GetMapping("/{id}")
+        public ResponseEntity<VoteDTO> getVoteById(@PathVariable Long id) {
+                VoteDTO vote = voteService.getVoteById(id);
+                return ResponseEntity.ok(vote);
+        }
 
-    // @GetMapping("/{id}")
-    // public ResponseEntity<VoteDTO> getvoteById(@PathVariable Long id) {
-    //     return ResponseEntity.ok(voteService.getvoteById(id));
-    // }
+// Get all votes for a specific idea
+        @GetMapping("/idea/{ideaId}")
+        public ResponseEntity<List<VoteDTO>> getVotesByIdea(
+                        @PathVariable Long ideaId) {
 
-    @PostMapping
-    public ResponseEntity<VoteDTO> createVote(@RequestBody VoteDTO dto) {
-        VoteDTO vote = voteService.createVote(dto);
-        // return new ResponseEntity<>(vote, HttpStatus.CREATED);
-        return ResponseEntity.status(HttpStatus.CREATED).body(vote);
+                List<VoteDTO> votes = voteService.getVotesByIdea(ideaId);
 
-    }
+                return ResponseEntity.ok(votes);
 
-    @PutMapping("/{id}")
-    public ResponseEntity<VoteDTO> editVote(@PathVariable Long id, @RequestBody VoteDTO dto) {
-        VoteDTO vote = voteService.editVote(id, dto);
-        return ResponseEntity.ok(vote);
-    }
+        }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteVote(@PathVariable Long id) {
-        voteService.deleteVote(id);
-        return ResponseEntity.noContent().build();
-    }
+        @PostMapping
+        public ResponseEntity<VoteDTO> createVote(@RequestBody VoteDTO dto) {
+                VoteDTO vote = voteService.createVote(dto);
+                // return new ResponseEntity<>(vote, HttpStatus.CREATED);
+                return ResponseEntity.status(HttpStatus.CREATED).body(vote);
+
+        }
+
+        @PutMapping("/{id}")
+        public ResponseEntity<VoteDTO> editVote(@PathVariable Long id, @RequestBody VoteDTO dto) {
+                VoteDTO vote = voteService.editVote(id, dto);
+                return ResponseEntity.ok(vote);
+        }
+
+        @DeleteMapping("/{id}")
+        public ResponseEntity<Void> deleteVote(@PathVariable Long id) {
+                voteService.deleteVote(id);
+                return ResponseEntity.noContent().build();
+        }
 
 }

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.uni.innovationConnect.dto.IdeaDTO;
+import com.uni.innovationConnect.enums.IdeaStatus;
 import com.uni.innovationConnect.service.IdeaService;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class IdeaController {
     private final IdeaService ideaService;
 
-     @GetMapping
+    @GetMapping
     public ResponseEntity<List<IdeaDTO>> getAllIdeas() {
         List<IdeaDTO> ideas = ideaService.getAllIdeas();
         return new ResponseEntity<>(ideas, HttpStatus.OK);
@@ -28,11 +29,6 @@ public class IdeaController {
         IdeaDTO idea = ideaService.getIdeaById(id);
         return ResponseEntity.ok(idea);
     }
-
-    // @GetMapping("/{id}")
-    // public ResponseEntity<IdeaDTO> getideaById(@PathVariable Long id) {
-    //     return ResponseEntity.ok(ideaService.getideaById(id));
-    // }
 
     @PostMapping
     public ResponseEntity<IdeaDTO> createIdea(@RequestBody IdeaDTO dto) {
@@ -54,4 +50,10 @@ public class IdeaController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<IdeaDTO> updateIdeaStatus(@PathVariable Long id, @RequestParam IdeaStatus status) {
+        IdeaDTO updatedIdea = ideaService.updateIdeaStatus(id, status);
+        return ResponseEntity.ok(updatedIdea);
+    }
+    
 }

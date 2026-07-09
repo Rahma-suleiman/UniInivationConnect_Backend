@@ -1,4 +1,4 @@
-package com.uni.auth.config;
+package com.uni.innovationConnect.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

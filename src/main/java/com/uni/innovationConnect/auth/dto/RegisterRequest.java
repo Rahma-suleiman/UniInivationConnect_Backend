@@ -1,4 +1,5 @@
-package com.uni.auth.dto;
+package com.uni.innovationConnect.auth.dto;
+
 
 import com.uni.innovationConnect.model.Role;
 

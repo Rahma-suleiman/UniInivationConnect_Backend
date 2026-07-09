@@ -14,7 +14,6 @@ public class Comment extends AuditModel<String>{
 
     private String message;
 
-    // private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "idea_id")

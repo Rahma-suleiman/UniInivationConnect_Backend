@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class FeedbackController {
     private final FeedbackService feedbackService;
 
-     @GetMapping
+    @GetMapping
     public ResponseEntity<List<FeedbackDTO>> getAllFeedbacks() {
         List<FeedbackDTO> feedbacks = feedbackService.getAllFeedbacks();
         return new ResponseEntity<>(feedbacks, HttpStatus.OK);
@@ -29,10 +29,17 @@ public class FeedbackController {
         return ResponseEntity.ok(feedback);
     }
 
-    // @GetMapping("/{id}")
-    // public ResponseEntity<FeedbackDTO> getfeedbackById(@PathVariable Long id) {
-    //     return ResponseEntity.ok(feedbackService.getfeedbackById(id));
-    // }
+//     Since feedback belongs to an idea, add:
+// GET /api/v2/innovationConnect/feedback/idea/{ideaId}
+// Example: GET /api/v2/innovationConnect/feedback/idea/1
+    @GetMapping("/idea/{ideaId}")
+    public ResponseEntity<List<FeedbackDTO>> getFeedbackByIdea(
+            @PathVariable Long ideaId) {
+
+        return ResponseEntity.ok(
+                feedbackService.getFeedbackByIdea(ideaId));
+
+    }
 
     @PostMapping
     public ResponseEntity<FeedbackDTO> createFeedback(@RequestBody FeedbackDTO dto) {
