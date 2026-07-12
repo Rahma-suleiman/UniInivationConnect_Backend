@@ -12,3 +12,14 @@ public enum IdeaStatus {
 
     IMPLEMENTED     // Idea has been developed into a solution
 }
+
+// Student posts idea
+//         ↓
+//      PENDING
+//         ↓
+// Lecturer starts review
+//         ↓
+//    UNDER_REVIEW
+//       /       \
+//      /         \
+// APPROVED     REJECTED

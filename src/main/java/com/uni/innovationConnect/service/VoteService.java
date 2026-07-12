@@ -16,245 +16,119 @@ import com.uni.innovationConnect.repository.VoteRepository;
 
 import lombok.RequiredArgsConstructor;
 
-
 @Service
 @RequiredArgsConstructor
 public class VoteService {
 
+        private final VoteRepository voteRepository;
 
-    private final VoteRepository voteRepository;
+        private final IdeaRepository ideaRepository;
 
-    private final IdeaRepository ideaRepository;
+        private final UserRepository userRepository;
 
-    private final UserRepository userRepository;
+        private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper;
+        // Create vote
+        public VoteDTO createVote(VoteDTO dto) {
 
+                Idea idea = ideaRepository.findById(dto.getIdea())
 
+                                .orElseThrow(() -> new IllegalStateException(
+                                                "Idea not found"));
 
+                User user = userRepository.findById(dto.getUser())
 
-    // Get all votes
-    public List<VoteDTO> getAllVotes(){
+                                .orElseThrow(() -> new IllegalStateException(
+                                                "User not found"));
 
+                // Only students can vote
 
-        return voteRepository.findAll()
+                if (!user.getRole()
+                                .name()
+                                .equals("STUDENT")) {
 
-                .stream()
+                        throw new IllegalStateException(
+                                        "Only students can vote");
 
-                .map(this::mapToDTO)
+                }
 
-                .collect(Collectors.toList());
+                // Cannot vote rejected ideas
 
-    }
+                if (idea.getStatus()
+                                .name()
+                                .equals("REJECTED")) {
 
+                        throw new IllegalStateException(
+                                        "Cannot vote rejected idea");
 
+                }
 
+                boolean alreadyVoted = voteRepository
+                                .existsByIdeaIdAndUserId(
+                                                idea.getId(),
+                                                user.getId());
 
+                if (alreadyVoted) {
 
-    // Get vote by id
-    public VoteDTO getVoteById(Long id){
+                        throw new IllegalStateException(
+                                        "You already voted for this idea");
 
+                }
 
-        Vote vote = voteRepository.findById(id)
+                Vote vote = new Vote();
 
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "Vote not found"
-                        ));
+                vote.setIdea(idea);
 
+                vote.setUser(user);
 
-        return mapToDTO(vote);
+                Vote saved = voteRepository.save(vote);
 
-    }
-
-
-
-
-
-    // Create vote
-    public VoteDTO createVote(VoteDTO dto){
-
-
-        // Check duplicate vote
-
-        boolean alreadyVoted =
-                voteRepository.existsByIdeaIdAndUserId(
-                        dto.getIdea(),
-                        dto.getUser()
-                );
-
-
-        if(alreadyVoted){
-
-            throw new IllegalStateException(
-                    "User already voted for this idea"
-            );
+                return mapToDTO(saved);
 
         }
 
+        // Get votes of an idea
 
+        public List<VoteDTO> getVotesByIdea(Long ideaId) {
 
+                return voteRepository
+                                .findByIdeaId(ideaId)
 
-        Vote vote = new Vote();
+                                .stream()
 
+                                .map(this::mapToDTO)
 
-
-        Idea idea = ideaRepository.findById(dto.getIdea())
-
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "Idea not found"
-                        ));
-
-
-
-        User user = userRepository.findById(dto.getUser())
-
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "User not found"
-                        ));
-
-
-
-        vote.setIdea(idea);
-
-        vote.setUser(user);
-
-
-
-        Vote savedVote =
-                voteRepository.save(vote);
-
-
-
-        return mapToDTO(savedVote);
-
-    }
-
-
-
-
-
-
-    // Update vote
-    public VoteDTO editVote(Long id, VoteDTO dto){
-
-
-        Vote vote = voteRepository.findById(id)
-
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "Vote not found"
-                        ));
-
-
-
-        Idea idea = ideaRepository.findById(dto.getIdea())
-
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "Idea not found"
-                        ));
-
-
-
-        User user = userRepository.findById(dto.getUser())
-
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "User not found"
-                        ));
-
-
-
-        vote.setIdea(idea);
-
-        vote.setUser(user);
-
-
-
-        Vote updatedVote =
-                voteRepository.save(vote);
-
-
-
-        return mapToDTO(updatedVote);
-
-    }
-
-
-
-
-
-
-
-    // Delete vote
-    public void deleteVote(Long id){
-
-
-        Vote vote = voteRepository.findById(id)
-
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "Vote not found"
-                        ));
-
-
-        voteRepository.delete(vote);
-
-    }
-
-
-
-// Get votes by idea
-public List<VoteDTO> getVotesByIdea(Long ideaId){
-
-    return voteRepository.findByIdeaId(ideaId)
-
-            .stream()
-
-            .map(this::mapToDTO)
-
-            .collect(Collectors.toList());
-
-}
-
-
-    // Entity -> DTO
-    private VoteDTO mapToDTO(Vote vote){
-
-
-        VoteDTO dto =
-                modelMapper.map(
-                        vote,
-                        VoteDTO.class
-                );
-
-
-
-        if(vote.getIdea()!=null){
-
-            dto.setIdea(
-                    vote.getIdea().getId()
-            );
+                                .collect(Collectors.toList());
 
         }
 
+        // Delete vote (student removes vote)
 
+        public void deleteVote(Long id) {
 
-        if(vote.getUser()!=null){
+                Vote vote = voteRepository.findById(id)
 
-            dto.setUser(
-                    vote.getUser().getId()
-            );
+                                .orElseThrow(() -> new IllegalStateException(
+                                                "Vote not found"));
+
+                voteRepository.delete(vote);
 
         }
 
+        private VoteDTO mapToDTO(Vote vote) {
 
+                VoteDTO dto = modelMapper.map(
+                                vote,
+                                VoteDTO.class);
 
-        return dto;
+                dto.setIdea(
+                                vote.getIdea().getId());
 
-    }
+                dto.setUser(
+                                vote.getUser().getId());
+
+                return dto;
+
+        }
 
 }

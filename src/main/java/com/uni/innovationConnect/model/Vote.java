@@ -5,17 +5,26 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "votes")
+@Table(name = "votes", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {
+                "idea_id",
+                "user_id"
+        })
+})
 public class Vote extends AuditModel<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    // Idea receiving the vote
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idea_id", nullable = false)
     private Idea idea;
 
-    @ManyToOne
+    // Student who voted
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
 }

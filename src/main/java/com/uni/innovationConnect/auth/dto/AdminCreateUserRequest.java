@@ -7,7 +7,7 @@ import lombok.Data;
 
 
 @Data
-public class RegisterRequest {
+public class AdminCreateUserRequest {
 
 
     @NotBlank(message = "First name is required")

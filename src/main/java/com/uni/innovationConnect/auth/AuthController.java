@@ -1,12 +1,14 @@
 package com.uni.innovationConnect.auth;
 
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.uni.innovationConnect.auth.dto.AdminCreateUserRequest;
+import com.uni.innovationConnect.auth.dto.AuthResponse;
 import com.uni.innovationConnect.auth.dto.LoginRequest;
 import com.uni.innovationConnect.auth.dto.RegisterRequest;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -16,28 +18,41 @@ public class AuthController {
 
     private final AuthService authService;
 
-
-    // Register
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(
+            @Valid @RequestBody RegisterRequest request) {
 
-        return ResponseEntity.ok(authService.register(request));
+        return ResponseEntity.ok(
+                authService.register(request));
+
     }
 
-    // Login
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(
+            @Valid @RequestBody LoginRequest request) {
 
-        return ResponseEntity.ok(authService.login(request));
+        return ResponseEntity.ok(
+                authService.login(request));
+
     }
 
-    // Logout
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
+    @PostMapping("/admin/create-lecturer")
+    public ResponseEntity<AuthResponse> createLecturer(
+            @Valid @RequestBody AdminCreateUserRequest request) {
 
-        return ResponseEntity.ok(authService.logout());
+        return ResponseEntity.ok(
+                authService.createLecturer(request));
+
     }
 
+    @PostMapping("/admin/create-admin")
+    public ResponseEntity<AuthResponse> createAdmin(
+            @Valid @RequestBody AdminCreateUserRequest request) {
+
+        return ResponseEntity.ok(
+                authService.createAdmin(request));
+
+    }
 }
 
 // REGISTER
@@ -96,4 +111,3 @@ public class AuthController {
 // "password": "SecurePass789"
 // }
 //
-

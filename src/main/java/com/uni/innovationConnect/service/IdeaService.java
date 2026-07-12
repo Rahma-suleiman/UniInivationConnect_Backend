@@ -54,7 +54,7 @@ public class IdeaService {
         idea.setStatus(IdeaStatus.PENDING);
 
         // Find the idea owner
-        User user = userRepository.findById(dto.getUser())
+        User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new IllegalStateException("User not found"));
 
         // Connect user with idea
@@ -66,19 +66,34 @@ public class IdeaService {
     }
 
     // Update idea
+    // Student edits idea details only
     public IdeaDTO editIdea(Long id, IdeaDTO dto) {
 
         Idea idea = ideaRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Idea not found"));
+
+                .orElseThrow(() -> new IllegalStateException(
+                        "Idea not found"));
+
+        // Cannot edit approved/rejected/implemented ideas
+        if (idea.getStatus() == IdeaStatus.APPROVED
+                ||
+                idea.getStatus() == IdeaStatus.REJECTED
+                ||
+                idea.getStatus() == IdeaStatus.IMPLEMENTED) {
+
+            throw new IllegalStateException(
+                    "This idea cannot be edited");
+
+        }
 
         idea.setTitle(dto.getTitle());
+
         idea.setDescription(dto.getDescription());
+
         idea.setCategory(dto.getCategory());
 
-        // Allow status update by lecturer/admin
-        if (dto.getStatus() != null) {
-            idea.setStatus(dto.getStatus());
-        }
+        // Do not update status here
+        // Status is handled by lecturer method
 
         Idea updatedIdea = ideaRepository.save(idea);
 
@@ -102,7 +117,7 @@ public class IdeaService {
 
         // fk
         if (idea.getUser() != null) {
-            dto.setUser(idea.getUser().getId());
+            dto.setUserId(idea.getUser().getId());
         }
 
         // reverse r/ship
@@ -135,20 +150,30 @@ public class IdeaService {
         Idea idea = ideaRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Idea not found"));
 
+        if (status == null) {
+
+            throw new IllegalStateException(
+                    "Status is required");
+
+        }
         // Status workflow validation
-        // When the lecturer changes status: idea.setStatus(status);
-        // before saving, you call:if(!isValidStatusTransition(idea.getStatus(),status)){
+        // When the lecturer changes status: idea.setStatus(newStatus);
+        // before saving, you
+        // call:if(!isValidStatusTransition(idea.getStatus(),newStatus )){
         // Example:
         // Database:Idea ID: 1,Current status: PENDING
-        // Lecturer sends:PATCH /idea/1/status?status=APPROVED (which is the new status to b changed by the isValidStatusTransition())
-        // The method(isValidStatusTransition()) checks: currentStatus = PENDING, newStatus = APPROVED
-        // It reaches: case PENDING -> newStatus == UNDER_REVIEW || newStatus == REJECTED;
-        // Checking: APPROVED == UNDER_REVIEW  ❌, APPROVED == REJECTED       ❌
+        // Lecturer sends:PATCH /idea/1/status?status=APPROVED (which is the new status
+        // to b changed by the isValidStatusTransition())
+        // The method(isValidStatusTransition()) checks: currentStatus = PENDING,
+        // newStatus = APPROVED
+        // It reaches: case PENDING -> newStatus == UNDER_REVIEW || newStatus ==
+        // REJECTED;
+        // Checking: APPROVED == UNDER_REVIEW ❌, APPROVED == REJECTED ❌
         // Result:false ,The update is blocked.
 
-        // isValidStatusTransition() returns	!result	Enters if?	 Outcome
-        // true	                                false	❌ No	    Status update continues
-        // false	                            true	✅ Yes	    Exception is thrown
+        // isValidStatusTransition() returns !result Enters if? Outcome
+        // true false ❌ No Status update continues
+        // false true ✅ Yes Exception is thrown
         if (!isValidStatusTransition(idea.getStatus(), status)) {
             throw new IllegalStateException("Invalid status change from " + idea.getStatus() + " to " + status);
         }
@@ -161,40 +186,40 @@ public class IdeaService {
 
     }
 
-
-    // isValidStatusTransition() is a security rule for your idea 
-    // lifecycle. It prevents users (especially students) from 
+    // isValidStatusTransition() is a security rule for your idea
+    // lifecycle. It prevents users (especially students) from
     // skipping steps or changing an idea status incorrectly.
-// This method receives two values:
-// 1. currentStatus->The current status of the idea in the database.
-// Example:currentStatus = IdeaStatus.PENDING;
-// Meaning:The student has submitted an idea, and it is waiting for review.
-// 2. newStatus->The status someone wants to change it to.
-// Example:newStatus = IdeaStatus.UNDER_REVIEW;
-// Meaning:A lecturer wants to start reviewing the idea.
+    // This method receives two values:
+    // 1. currentStatus->The current status of the idea in the database.
+    // Example:currentStatus = IdeaStatus.PENDING;
+    // Meaning:The student has submitted an idea, and it is waiting for review.
+    // 2. newStatus->The status someone wants to change it to.
+    // Example:newStatus = IdeaStatus.UNDER_REVIEW;
+    // Meaning:A lecturer wants to start reviewing the idea.
 
-// The method returns:
-// true->if the change is allowed.
-// or
-// false->if the change is not allowed.
-    private boolean isValidStatusTransition(IdeaStatus currentStatus,IdeaStatus newStatus) {
+    // The method returns:
+    // true->if the change is allowed.
+    // or
+    // false->if the change is not allowed.
+    private boolean isValidStatusTransition(IdeaStatus currentStatus, IdeaStatus newStatus) {
 
-        // switch statement means:Check the current status and decide which status changes are allowed.
+        // switch statement means:Check the current status and decide which status
+        // changes are allowed.
         return switch (currentStatus) {
 
-            // If the idea is currently:PENDING, it can only move to:UNDER_REVIEW or REJECTED
+            // If the idea is currently:PENDING, it can only move to:UNDER_REVIEW or
+            // REJECTED
             // Example:
             // Allowed: PENDING → UNDER_REVIEW ✅(because the lecturer starts evaluation.)
-            // Allowed:PENDING → REJECTED ✅(because the idea can be rejected immediately)
-            // Not allowed:PENDING → APPROVED ❌(because the lecturer should review it first.)
+            // Not allowed:PENDING → APPROVED ❌(because the lecturer should review it
+            // first.)
             case PENDING ->
-                newStatus == IdeaStatus.UNDER_REVIEW
-                        || newStatus == IdeaStatus.REJECTED;
-
+                newStatus == IdeaStatus.UNDER_REVIEW;
             // If the idea is being reviewed:UNDER_REVIEW, the lecturer has two choices:
             // Approve:UNDER_REVIEW → APPROVED(The idea is good and can be developed.)
             // Reject:UNDER_REVIEW → REJECTED(The idea is not accepted.)
-            // Not allowed:UNDER_REVIEW → IMPLEMENTED ❌(because the idea cannot be implemented before approval.)
+            // Not allowed:UNDER_REVIEW → IMPLEMENTED ❌(because the idea cannot be
+            // implemented before approval.)
             case UNDER_REVIEW ->
                 newStatus == IdeaStatus.APPROVED
                         || newStatus == IdeaStatus.REJECTED;
@@ -226,17 +251,24 @@ public class IdeaService {
 
     }
 }
-// 2. Add status transition validation
-
-// This controls your lifecycle:
-
-// PENDING
-// |
-// ▼
-// UNDER_REVIEW
-// |
-// ▼
-// APPROVED
-// |
-// ▼
-// IMPLEMENTED
+// Idea posted by Rahma (Student ID 5)
+// {
+//   "title": "Smart Agriculture Monitoring System",
+//   "description": "A system that uses sensors to monitor soil moisture, temperature, and crop conditions to help farmers improve production.",
+//   "category": "AGRICULTURE",
+//   "userId": 5
+// }
+// Idea posted by Shuayb (Student ID 6)
+// {
+//   "title": "University Digital Lost and Found Platform",
+//   "description": "A platform where students can report lost items and help owners find their belongings within the university.",
+//   "category": "TECHNOLOGY",
+//   "userId": 6
+// }
+// Idea posted by Zainab (Student ID 7)
+// {
+//   "title": "Campus Health Appointment System",
+//   "description": "A digital system that allows students to book health center appointments and receive medical service notifications.",
+//   "category": "HEALTHCARE",
+//   "userId": 7
+// }

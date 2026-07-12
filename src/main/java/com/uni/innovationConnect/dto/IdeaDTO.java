@@ -22,7 +22,7 @@ public class IdeaDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private IdeaStatus status;
 
-    private Long user;
+    private Long userId;
     
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<Long> commentIds;

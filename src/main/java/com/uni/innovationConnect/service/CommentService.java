@@ -3,7 +3,6 @@ package com.uni.innovationConnect.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 

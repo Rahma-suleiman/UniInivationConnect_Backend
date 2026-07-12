@@ -1,11 +1,22 @@
 package com.uni.innovationConnect.auth.dto;
 
+
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+
 
 @Data
 public class LoginRequest {
-    
-    private String usernameOrEmail;
+
+
+    @Email
+    @NotBlank
+    private String email;
+
+
+    @NotBlank
     private String password;
-    
+
 }

@@ -15,49 +15,39 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v2/innovationConnect/vote")
 @RequiredArgsConstructor
 public class VoteController {
+
         private final VoteService voteService;
 
-        @GetMapping
-        public ResponseEntity<List<VoteDTO>> getAllVotes() {
-                List<VoteDTO> votes = voteService.getAllVotes();
-                return new ResponseEntity<>(votes, HttpStatus.OK);
+        @PostMapping
+        public ResponseEntity<VoteDTO> createVote(
+                        @RequestBody VoteDTO dto) {
+
+                return ResponseEntity
+                                .status(HttpStatus.CREATED)
+                                .body(
+                                                voteService.createVote(dto));
+
         }
 
-        @GetMapping("/{id}")
-        public ResponseEntity<VoteDTO> getVoteById(@PathVariable Long id) {
-                VoteDTO vote = voteService.getVoteById(id);
-                return ResponseEntity.ok(vote);
-        }
-
-// Get all votes for a specific idea
         @GetMapping("/idea/{ideaId}")
         public ResponseEntity<List<VoteDTO>> getVotesByIdea(
                         @PathVariable Long ideaId) {
 
-                List<VoteDTO> votes = voteService.getVotesByIdea(ideaId);
+                return ResponseEntity.ok(
+                                voteService.getVotesByIdea(ideaId));
 
-                return ResponseEntity.ok(votes);
-
-        }
-
-        @PostMapping
-        public ResponseEntity<VoteDTO> createVote(@RequestBody VoteDTO dto) {
-                VoteDTO vote = voteService.createVote(dto);
-                // return new ResponseEntity<>(vote, HttpStatus.CREATED);
-                return ResponseEntity.status(HttpStatus.CREATED).body(vote);
-
-        }
-
-        @PutMapping("/{id}")
-        public ResponseEntity<VoteDTO> editVote(@PathVariable Long id, @RequestBody VoteDTO dto) {
-                VoteDTO vote = voteService.editVote(id, dto);
-                return ResponseEntity.ok(vote);
         }
 
         @DeleteMapping("/{id}")
-        public ResponseEntity<Void> deleteVote(@PathVariable Long id) {
+        public ResponseEntity<Void> deleteVote(
+                        @PathVariable Long id) {
+
                 voteService.deleteVote(id);
-                return ResponseEntity.noContent().build();
+
+                return ResponseEntity
+                                .noContent()
+                                .build();
+
         }
 
 }

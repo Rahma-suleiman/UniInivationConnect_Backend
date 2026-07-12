@@ -50,10 +50,21 @@ public class IdeaController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<IdeaDTO> updateIdeaStatus(@PathVariable Long id, @RequestParam IdeaStatus status) {
-        IdeaDTO updatedIdea = ideaService.updateIdeaStatus(id, status);
+    @PutMapping("/{id}/status")
+    public ResponseEntity<IdeaDTO> updateIdeaStatus(
+
+            @PathVariable Long id,
+
+            @RequestParam IdeaStatus status
+
+    ) {
+
+        IdeaDTO updatedIdea = ideaService.updateIdeaStatus(
+                id,
+                status);
+
         return ResponseEntity.ok(updatedIdea);
+
     }
-    
+
 }

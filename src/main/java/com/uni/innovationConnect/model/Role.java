@@ -1,7 +1,7 @@
 package com.uni.innovationConnect.model;
 
 public enum Role {
-    STUDENT,
+    ADMIN,
     LECTURER,
-    ADMIN
+    STUDENT,
 }
