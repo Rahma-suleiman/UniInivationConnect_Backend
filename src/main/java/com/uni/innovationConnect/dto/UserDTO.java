@@ -46,8 +46,8 @@ public class UserDTO {
 
 
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<ChallengeDTO> challenges;
+    // @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    // private List<ChallengeDTO> challenges;
 
 
 

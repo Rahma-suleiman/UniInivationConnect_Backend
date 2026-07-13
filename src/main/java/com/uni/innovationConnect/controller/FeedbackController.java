@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v2/innovationConnect/feedback")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class FeedbackController {
     private final FeedbackService feedbackService;
 

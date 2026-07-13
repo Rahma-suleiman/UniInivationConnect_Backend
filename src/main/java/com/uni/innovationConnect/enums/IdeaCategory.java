@@ -6,7 +6,7 @@ public enum IdeaCategory {
 
     EDUCATION,
 
-    HEALTHCARE,
+    HEALTH,
 
     TECHNOLOGY,
 
@@ -20,5 +20,15 @@ public enum IdeaCategory {
 
     TRANSPORTATION,
 
-    OTHER
+    WATER_AND_HYGIENE,
+
+    TOURISM,
+
+    BLUE_ECONOMY,
+
+    RENEWABLE_ENERGY,
+
+    FINTECH,
+
+    OTHERS
 }

@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v2/innovationConnect/idea")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class IdeaController {
     private final IdeaService ideaService;
 

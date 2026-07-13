@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
-import lombok.Data;
+// import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "users")
 public class User extends AuditModel<String> {
 
@@ -50,8 +53,8 @@ public class User extends AuditModel<String> {
 
 
     // User -> Challenges
-    @OneToMany(mappedBy = "user")
-    private List<Challenge> challenges = new ArrayList<>();
+    // @OneToMany(mappedBy = "user")
+    // private List<Challenge> challenges = new ArrayList<>();
 
 
     // Lecturer -> Feedback

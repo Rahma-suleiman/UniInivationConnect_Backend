@@ -12,7 +12,7 @@ public class CommentDTO {
 
     private String message;
 
-    private Long idea;
+    private Long ideaId;
 
-    private Long user;
+    private Long userId;
 }

@@ -1,20 +1,20 @@
-package com.uni.innovationConnect.dto;
+// package com.uni.innovationConnect.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+// import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Data;
+// import lombok.Data;
 
-@Data
-public class ChallengeDTO {
+// @Data
+// public class ChallengeDTO {
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Long id;
+//     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+//     private Long id;
 
-    private String title;
+//     private String title;
 
-    private String description;
+//     private String description;
 
-    private String sector;
+//     private String sector;
 
-    private Long user;
-}
+//     private Long user;
+// }

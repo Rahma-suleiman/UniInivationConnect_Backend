@@ -9,8 +9,7 @@ public class VoteDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
-    private Long idea;
+    private Long ideaId;
 
-    private Long user;
+    private Long userId;
 }
-// NB: RERVESE HAS TO HV READ_ONLY PROPERTY JXT LYK ID

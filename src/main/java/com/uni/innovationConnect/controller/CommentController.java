@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v2/innovationConnect/comment")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;

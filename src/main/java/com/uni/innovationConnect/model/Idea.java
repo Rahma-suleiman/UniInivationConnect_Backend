@@ -1,6 +1,5 @@
 package com.uni.innovationConnect.model;
 
-// import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,10 +7,12 @@ import com.uni.innovationConnect.enums.IdeaCategory;
 import com.uni.innovationConnect.enums.IdeaStatus;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "ideas")
 public class Idea extends AuditModel<String> {
 
@@ -32,12 +33,10 @@ public class Idea extends AuditModel<String> {
     @Column(nullable = false)
     private IdeaStatus status;
 
-
     // frwd/ fk r/ship
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
-
 
     // reverse r/ship
     @OneToMany(mappedBy = "idea", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -48,4 +47,5 @@ public class Idea extends AuditModel<String> {
 
     @OneToMany(mappedBy = "idea", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vote> votes = new ArrayList<>();
+    
 }

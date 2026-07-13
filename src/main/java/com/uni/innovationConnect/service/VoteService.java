@@ -3,11 +3,13 @@ package com.uni.innovationConnect.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.uni.innovationConnect.dto.VoteDTO;
+import com.uni.innovationConnect.dto.VoteResponseDTO;
+import com.uni.innovationConnect.enums.IdeaStatus;
 import com.uni.innovationConnect.model.Idea;
+import com.uni.innovationConnect.model.Role;
 import com.uni.innovationConnect.model.User;
 import com.uni.innovationConnect.model.Vote;
 import com.uni.innovationConnect.repository.IdeaRepository;
@@ -21,54 +23,75 @@ import lombok.RequiredArgsConstructor;
 public class VoteService {
 
         private final VoteRepository voteRepository;
-
         private final IdeaRepository ideaRepository;
-
         private final UserRepository userRepository;
 
-        private final ModelMapper modelMapper;
+        // Get all votes
+        public List<VoteDTO> getAllVotes() {
+
+                return voteRepository.findAll()
+                                .stream()
+                                .map(this::mapToDTO)
+                                .collect(Collectors.toList());
+
+        }
+
+        // Get vote by id
+        public VoteDTO getVoteById(Long id) {
+
+                Vote vote = voteRepository.findById(id)
+                                .orElseThrow(() -> new IllegalStateException("Vote not found"));
+
+                return mapToDTO(vote);
+
+        }
 
         // Create vote
         public VoteDTO createVote(VoteDTO dto) {
 
-                Idea idea = ideaRepository.findById(dto.getIdea())
+                if (dto.getIdeaId() == null || dto.getUserId() == null) {
+
+                        throw new IllegalStateException(
+                                        "Idea and user are required");
+                }
+
+                Idea idea = ideaRepository.findById(dto.getIdeaId())
 
                                 .orElseThrow(() -> new IllegalStateException(
                                                 "Idea not found"));
 
-                User user = userRepository.findById(dto.getUser())
+                User user = userRepository.findById(dto.getUserId())
 
                                 .orElseThrow(() -> new IllegalStateException(
                                                 "User not found"));
 
-                // Only students can vote
-
-                if (!user.getRole()
-                                .name()
-                                .equals("STUDENT")) {
+                if (user.getRole() != Role.STUDENT) {
 
                         throw new IllegalStateException(
                                         "Only students can vote");
 
                 }
 
-                // Cannot vote rejected ideas
-
-                if (idea.getStatus()
-                                .name()
-                                .equals("REJECTED")) {
+                if (idea.getUser().getId()
+                                .equals(user.getId())) {
 
                         throw new IllegalStateException(
-                                        "Cannot vote rejected idea");
+                                        "You cannot vote your own idea");
 
                 }
 
-                boolean alreadyVoted = voteRepository
-                                .existsByIdeaIdAndUserId(
-                                                idea.getId(),
-                                                user.getId());
+                if (idea.getStatus() != IdeaStatus.PENDING
+                                &&
+                                idea.getStatus() != IdeaStatus.UNDER_REVIEW) {
 
-                if (alreadyVoted) {
+                        throw new IllegalStateException(
+                                        "Voting is closed for this idea");
+
+                }
+
+                if (voteRepository.existsByIdeaIdAndUserId(
+                                idea.getId(),
+                                user.getId())) {
 
                         throw new IllegalStateException(
                                         "You already voted for this idea");
@@ -81,54 +104,100 @@ public class VoteService {
 
                 vote.setUser(user);
 
-                Vote saved = voteRepository.save(vote);
-
-                return mapToDTO(saved);
+                return mapToDTO(
+                                voteRepository.save(vote));
 
         }
 
-        // Get votes of an idea
+        // Get votes by idea
+        public List<VoteResponseDTO> getVotesByIdea(Long ideaId) {
 
-        public List<VoteDTO> getVotesByIdea(Long ideaId) {
-
-                return voteRepository
-                                .findByIdeaId(ideaId)
-
+                return voteRepository.findByIdeaId(ideaId)
                                 .stream()
-
-                                .map(this::mapToDTO)
-
+                                .map(this::mapToResponseDTO)
                                 .collect(Collectors.toList());
 
         }
 
-        // Delete vote (student removes vote)
-
+        // Delete vote
         public void deleteVote(Long id) {
 
                 Vote vote = voteRepository.findById(id)
-
-                                .orElseThrow(() -> new IllegalStateException(
-                                                "Vote not found"));
+                                .orElseThrow(() -> new IllegalStateException("Vote not found"));
 
                 voteRepository.delete(vote);
 
         }
 
+        // Entity -> DTO
         private VoteDTO mapToDTO(Vote vote) {
 
-                VoteDTO dto = modelMapper.map(
-                                vote,
-                                VoteDTO.class);
+                VoteDTO dto = new VoteDTO();
 
-                dto.setIdea(
-                                vote.getIdea().getId());
+                dto.setId(vote.getId());
 
-                dto.setUser(
-                                vote.getUser().getId());
+                if (vote.getIdea() != null) {
+                        dto.setIdeaId(vote.getIdea().getId());
+                }
+
+                if (vote.getUser() != null) {
+                        dto.setUserId(vote.getUser().getId());
+                }
+
+                return dto;
+
+        }
+
+        private VoteResponseDTO mapToResponseDTO(Vote vote) {
+
+                VoteResponseDTO dto = new VoteResponseDTO();
+
+                dto.setId(vote.getId());
+
+                if (vote.getUser() != null) {
+
+                        dto.setStudentName(
+                                        vote.getUser().getFirstName()
+                                                        + " "
+                                                        + vote.getUser().getLastName());
+
+                }
+
+                if (vote.getIdea() != null) {
+
+                        dto.setIdeaTitle(
+                                        vote.getIdea().getTitle());
+
+                }
 
                 return dto;
 
         }
 
 }
+
+// Student 7 votes for Student 5's idea
+// {
+// "ideaId": 1,
+// "userId": 7
+// }
+// Student 5 votes for Student 6's idea
+// {
+// "ideaId": 2,
+// "userId": 5
+// }
+// Student 7 votes for Student 6's idea
+// {
+// "ideaId": 2,
+// "userId": 7
+// }
+// Student 5 votes for Student 7's idea
+// {
+// "ideaId": 3,
+// "userId": 5
+// }
+// Student 6 votes for Student 7's idea
+// {
+// "ideaId": 3,
+// "userId": 6
+// }
