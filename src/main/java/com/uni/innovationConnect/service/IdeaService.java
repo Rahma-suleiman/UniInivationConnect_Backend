@@ -3,12 +3,13 @@ package com.uni.innovationConnect.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
+// import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.uni.innovationConnect.dto.IdeaDTO;
 import com.uni.innovationConnect.enums.IdeaStatus;
 import com.uni.innovationConnect.model.Idea;
+import com.uni.innovationConnect.model.Role;
 import com.uni.innovationConnect.model.User;
 import com.uni.innovationConnect.repository.IdeaRepository;
 import com.uni.innovationConnect.repository.UserRepository;
@@ -21,7 +22,7 @@ public class IdeaService {
 
     private final IdeaRepository ideaRepository;
     private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
+    // private final ModelMapper modelMapper;
 
     // Get all ideas
     public List<IdeaDTO> getAllIdeas() {
@@ -41,7 +42,42 @@ public class IdeaService {
     }
 
     // Step 1: Student submits an idea
+    // Student submits an idea
     public IdeaDTO createIdea(IdeaDTO dto) {
+
+        if (dto.getTitle() == null || dto.getTitle().isBlank()) {
+
+            throw new IllegalStateException(
+                    "Idea title is required");
+
+        }
+
+        if (dto.getDescription() == null || dto.getDescription().isBlank()) {
+
+            throw new IllegalStateException(
+                    "Idea description is required");
+
+        }
+
+        if (dto.getCategory() == null) {
+
+            throw new IllegalStateException(
+                    "Idea category is required");
+
+        }
+
+        User user = userRepository.findById(dto.getUserId())
+
+                .orElseThrow(() -> new IllegalStateException(
+                        "User not found"));
+
+        // Only students can submit ideas
+        if (user.getRole() != Role.STUDENT) {
+
+            throw new IllegalStateException(
+                    "Only students can submit ideas");
+
+        }
 
         Idea idea = new Idea();
 
@@ -51,18 +87,15 @@ public class IdeaService {
 
         idea.setCategory(dto.getCategory());
 
+        // New ideas always start as pending
         idea.setStatus(IdeaStatus.PENDING);
 
-        // Find the idea owner
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-
-        // Connect user with idea
         idea.setUser(user);
 
         Idea savedIdea = ideaRepository.save(idea);
 
         return mapToDTO(savedIdea);
+
     }
 
     // Update idea
@@ -110,39 +143,6 @@ public class IdeaService {
 
     }
 
-    // Convert Entity to DTO
-    private IdeaDTO mapToDTO(Idea idea) {
-
-        IdeaDTO dto = modelMapper.map(idea, IdeaDTO.class);
-
-        // fk
-        if (idea.getUser() != null) {
-            dto.setUserId(idea.getUser().getId());
-        }
-
-        // reverse r/ship
-        dto.setCommentIds(
-                idea.getComments()
-                        .stream()
-                        .map(comment -> comment.getId())
-                        .collect(Collectors.toList()));
-
-        dto.setFeedbackIds(
-                idea.getFeedbacks()
-                        .stream()
-                        .map(feedback -> feedback.getId())
-                        .collect(Collectors.toList()));
-
-        dto.setVoteIds(
-                idea.getVotes()
-                        .stream()
-                        .map(vote -> vote.getId())
-                        .collect(Collectors.toList()));
-
-        return dto;
-
-    }
-
     // (Step 2:Lecturer Reviews Idea)Lecturer updates idea status
     // Purpose:Allows lecturer/admin to change the idea lifecycle status.
     public IdeaDTO updateIdeaStatus(Long id, IdeaStatus status) {
@@ -151,10 +151,11 @@ public class IdeaService {
                 .orElseThrow(() -> new IllegalStateException("Idea not found"));
 
         if (status == null) {
-
-            throw new IllegalStateException(
-                    "Status is required");
-
+            throw new IllegalStateException("Status is required");
+        }
+        // Before approval, feedback must exist
+        if (status == IdeaStatus.APPROVED && idea.getFeedbacks().isEmpty()) {
+            throw new IllegalStateException("Idea needs lecturer feedback before approval");
         }
         // Status workflow validation
         // When the lecturer changes status: idea.setStatus(newStatus);
@@ -250,25 +251,100 @@ public class IdeaService {
         };
 
     }
+
+    private IdeaDTO mapToDTO(Idea idea) {
+
+        IdeaDTO dto = new IdeaDTO();
+
+        // Basic fields
+        dto.setId(idea.getId());
+
+        dto.setTitle(idea.getTitle());
+
+        dto.setDescription(idea.getDescription());
+
+        dto.setCategory(idea.getCategory());
+
+        dto.setStatus(idea.getStatus());
+
+        // User information
+        if (idea.getUser() != null) {
+
+            dto.setUserId(
+                    idea.getUser().getId());
+
+            dto.setUserName(
+                    idea.getUser().getFirstName()
+                            + " "
+                            + idea.getUser().getLastName());
+        }
+
+        // Comments
+        if (idea.getComments() != null) {
+
+            dto.setCommentIds(
+
+                    idea.getComments()
+                            .stream()
+                            .map(comment -> comment.getId())
+                            .collect(Collectors.toList())
+
+            );
+
+        }
+
+        // Feedbacks
+        if (idea.getFeedbacks() != null) {
+
+            dto.setFeedbackIds(
+
+                    idea.getFeedbacks()
+                            .stream()
+                            .map(feedback -> feedback.getId())
+                            .collect(Collectors.toList())
+
+            );
+
+        }
+
+        // Votes
+        if (idea.getVotes() != null) {
+
+            dto.setVoteIds(
+
+                    idea.getVotes()
+                            .stream()
+                            .map(vote -> vote.getId())
+                            .collect(Collectors.toList())
+
+            );
+
+        }
+
+        return dto;
+    }
 }
 // Idea posted by Rahma (Student ID 5)
 // {
-//   "title": "Smart Agriculture Monitoring System",
-//   "description": "A system that uses sensors to monitor soil moisture, temperature, and crop conditions to help farmers improve production.",
-//   "category": "AGRICULTURE",
-//   "userId": 5
+// "title": "Smart Agriculture Monitoring System",
+// "description": "A system that uses sensors to monitor soil moisture,
+// temperature, and crop conditions to help farmers improve production.",
+// "category": "AGRICULTURE",
+// "userId": 5
 // }
 // Idea posted by Shuayb (Student ID 6)
 // {
-//   "title": "University Digital Lost and Found Platform",
-//   "description": "A platform where students can report lost items and help owners find their belongings within the university.",
-//   "category": "TECHNOLOGY",
-//   "userId": 6
+// "title": "University Digital Lost and Found Platform",
+// "description": "A platform where students can report lost items and help
+// owners find their belongings within the university.",
+// "category": "TECHNOLOGY",
+// "userId": 6
 // }
 // Idea posted by Zainab (Student ID 7)
 // {
-//   "title": "Campus Health Appointment System",
-//   "description": "A digital system that allows students to book health center appointments and receive medical service notifications.",
-//   "category": "HEALTHCARE",
-//   "userId": 7
+// "title": "Campus Health Appointment System",
+// "description": "A digital system that allows students to book health center
+// appointments and receive medical service notifications.",
+// "category": "HEALTHCARE",
+// "userId": 7
 // }

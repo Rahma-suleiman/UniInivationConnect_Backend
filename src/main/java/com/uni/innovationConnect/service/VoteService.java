@@ -80,14 +80,14 @@ public class VoteService {
 
                 }
 
-                if (idea.getStatus() != IdeaStatus.PENDING
-                                &&
-                                idea.getStatus() != IdeaStatus.UNDER_REVIEW) {
+                // if (idea.getStatus() != IdeaStatus.PENDING
+                //                 &&
+                //                 idea.getStatus() != IdeaStatus.UNDER_REVIEW) {
 
-                        throw new IllegalStateException(
-                                        "Voting is closed for this idea");
+                //         throw new IllegalStateException(
+                //                         "Voting is closed for this idea");
 
-                }
+                // }
 
                 if (voteRepository.existsByIdeaIdAndUserId(
                                 idea.getId(),

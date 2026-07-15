@@ -8,4 +8,9 @@ import com.uni.innovationConnect.model.Feedback;
 
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
     List<Feedback> findByIdeaId(Long ideaId);
+
+      boolean existsByIdeaIdAndLecturerId(
+            Long ideaId,
+            Long lecturerId
+    );
 }

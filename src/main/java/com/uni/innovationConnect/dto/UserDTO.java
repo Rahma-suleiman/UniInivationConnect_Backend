@@ -31,28 +31,7 @@ public class UserDTO {
 
 
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<IdeaDTO> ideas;
-
-
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<CommentDTO> comments;
-
-
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<VoteDTO> votes;
-
-
-
-    // @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    // private List<ChallengeDTO> challenges;
-
-
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<FeedbackDTO> feedbacks;
+  
 
 
 }

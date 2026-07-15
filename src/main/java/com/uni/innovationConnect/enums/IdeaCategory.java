@@ -6,7 +6,7 @@ public enum IdeaCategory {
 
     EDUCATION,
 
-    HEALTH,
+    HEALTHCARE,
 
     TECHNOLOGY,
 
