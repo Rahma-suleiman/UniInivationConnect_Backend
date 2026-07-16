@@ -7,6 +7,7 @@ import com.uni.innovationConnect.auth.dto.AdminCreateUserRequest;
 import com.uni.innovationConnect.auth.dto.AuthResponse;
 import com.uni.innovationConnect.auth.dto.LoginRequest;
 import com.uni.innovationConnect.auth.dto.RegisterRequest;
+import com.uni.innovationConnect.auth.dto.UpdateProfileRequest;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,17 @@ public class AuthController {
         return ResponseEntity.ok(
                 authService.createAdmin(request));
 
+    }
+
+    @PutMapping("/profile/{userId}")
+    public ResponseEntity<AuthResponse> updateProfile(
+
+            @PathVariable Long userId,
+
+            @RequestBody UpdateProfileRequest request) {
+
+        return ResponseEntity.ok(
+                authService.updateProfile(userId, request));
     }
 }
 
