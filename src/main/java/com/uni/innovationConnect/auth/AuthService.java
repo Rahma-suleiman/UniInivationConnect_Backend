@@ -31,6 +31,7 @@ public class AuthService {
                                         "Email already exists");
 
                 }
+        
 
                 User user = new User();
 
